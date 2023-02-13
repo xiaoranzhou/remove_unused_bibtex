@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/pyodide-cdn@0.15.0/pyodide.js"></script>
+    <script>
+	var outputData;
+      async function main() {
+		  let pyodide = await loadPyodide();
+		  // Pyodide is now ready to use...
+		  console.log(pyodide.runPython(`
+			import sys
+			sys.version
+		  `));
+		};
+		main();
+      
+
+      async function loadData(file) {
+        let fileContent = await file.text();
+        outputData = await pyodide.runPython(fileContent);
+        console.log("Data processed in Python:", outputData);
+      }
+
+      function downloadData() {
+        let blob = new Blob([outputData], { type: 'text/plain' });
+        let link = document.createElement("a");
+        link.download = "output.txt";
+        link.href = window.URL.createObjectURL(blob);
+        link.click();
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container my-5">
+      <h1 class="text-center mb-5">File Processor</h1>
+      <div class="d-flex justify-content-center">
+        <div class="dropzone" ondrop="event.preventDefault(); event.stopPropagation(); for (let file of event.dataTransfer.files) loadData(file)">
+          <p class="text-center">Drop files here</p>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center my-5">
+        <button class="btn btn-primary" onclick="downloadData()">Download Output</button>
+      </div>
+    </div>
+    <style>
+      .dropzone {
+        border: 2px dashed black;
+        width: 50%;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .dropzone p {
+        margin: 0;
+      }
+    </style>
+  </body>
+</html>
