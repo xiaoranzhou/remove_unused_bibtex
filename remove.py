@@ -1,16 +1,25 @@
-def remove_unused_references(bib_file, bbl_file, aux_file):
-    used_references = set()
+import shutil
 
+bib_file = "these.bib"
+bbl_file = "output.bbl"
+aux_file = "output.aux"
+new_bib_file = "new.bib"
+
+
+def remove_unused_references(bib_file, bbl_file, aux_file, new_bib_file):
+    used_references = set()
+    shutil.copy(bib_file, new_bib_file)
     with open(bbl_file, "r") as bbl:
         for line in bbl:
-            if line.startswith("\\bibitem{"):
+            if line.startswith("\entry{"):
                 reference = line.strip().split("{")[1][:-1]
                 used_references.add(reference)
+                print(reference)
 
     with open(aux_file, "r") as aux:
         for line in aux:
-            if line.startswith("\\citation{"):
-                reference = line.strip().split("{")[1][:-1]
+            if line.startswith("\\abx@aux@cite{0}{"):
+                reference = line.strip().split("{")[2][:-1]
                 used_references.add(reference)
 
     with open(bib_file, "r") as bib:
@@ -29,8 +38,6 @@ def remove_unused_references(bib_file, bbl_file, aux_file):
             elif in_reference:
                 bib.write(line)
 
-bib_file = "these.bib"
-bbl_file = "output.bbl"
-aux_file = "output.aux"
 
-remove_unused_references(bib_file, bbl_file, aux_file)
+
+remove_unused_references(bib_file, bbl_file, aux_file, new_bib_file)
